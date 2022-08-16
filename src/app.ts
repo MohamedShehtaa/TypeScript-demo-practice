@@ -1,3 +1,34 @@
+//validation
+interface Validatable {
+    value: string | number;
+    required?: boolean;
+    minLength?: number;
+    maxLength?: number;
+    min?: number;
+    max?: number;
+}
+
+function validate(validatableInput: Validatable) {
+
+    let isValid = true;
+    if (validatableInput.required) {
+        isValid = isValid && validatableInput.value.toString().trim().length !== 0;
+    }
+    if (validatableInput.minLength != null /* one = null |undefiend || !== undefiend */ && typeof validatableInput.value === "string") { //=>type gaurd 
+        isValid = isValid && validatableInput.value.length > validatableInput.minLength;
+    }
+    if (validatableInput.maxLength != null /* one = null |undefiend || !== undefiend */ && typeof validatableInput.value === "string") { //=>type gaurd 
+        isValid = isValid && validatableInput.value.length < validatableInput.maxLength;
+    }
+    if (validatableInput.min != null && typeof validatableInput.value === "number") {
+        isValid = isValid && validatableInput.value > validatableInput.min;
+    }
+    if (validatableInput.max != null && typeof validatableInput.value === "number") {
+        isValid = isValid && validatableInput.value < validatableInput.max;
+    }
+    return isValid;
+}
+
 //auto bind decorator
 function autobind(target: any, methodName: string, descriptor: PropertyDescriptor) {  //=> method decorator
     const origingMethod = descriptor.value;
@@ -38,8 +69,26 @@ class ProjectInput {
         const enteredDescription = this.descriptionInputElement.value;
         const enteredPeople = this.peopleInputElement.value;
 
+        const titleValidatable: Validatable = {
+            value: enteredTitle,
+            required: true
+        };
+        const descrpitoionValidatable: Validatable = {
+            value: enteredDescription,
+            required: true,
+            minLength: 5
+        };
+        const peopleValidatable: Validatable = {
+            value: enteredPeople,
+            required: true,
+            min: 1,
+            max: 5
+        };
+
         //validation 
-        if (enteredTitle.trim().length === 0 || enteredDescription.trim().length === 0 || enteredPeople.trim().length === 0) {
+        if (!validate(titleValidatable) ||
+            !validate(descrpitoionValidatable) ||
+            !validate(peopleValidatable)) {
             alert('invalid input , please try again');
             return;
         } else {
@@ -60,7 +109,7 @@ class ProjectInput {
         //becouse the user has possible return of undefiend i w'll go for acheck
         if (Array.isArray(userInput)) {
             const [title, description, people] = userInput;
-            // console.log(title, description, people);
+            console.log(title, description, people);
             this.clearInputs();
         }
     }
